@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — vidigoz</title>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -349,9 +350,7 @@ let projects  = lsGet(LS.projects) || [
   { icon:'🎬', name:'Vidiclip', desc:'Editor de video en el navegador. Texto, imágenes, música y exportación directa.', url:'/vidiclip/', soon:true },
 ];
 let links    = lsGet(LS.links)    || { ig:'', tt:'', yt:'', email:'', li:'', customLabel:'', customURL:'' };
-let stories  = lsGet(LS.stories)  || [
-  { id:1, title:'El rey de Praga', text:'Es el año 1311, en las murallas de Praga. Agradeces a Dios porque hoy ningún mensajero llegó con noticias de guerra ni con disputas de impuestos entre nobles. Eres rey, y aunque la corona brilla, pesa más que una armadura mojada.', year:'1311', place:'Praga', age:'44', soup:'nabo', genre:'Tragedia', image:null }
-];
+// stories loaded from Blobs via loadStories()
 let dirty = false;
 let addImage = null;
 
@@ -364,7 +363,7 @@ function showPanel(id){
   const mn  = document.getElementById('mn-'+id);
   if(nav) nav.classList.add('active');
   if(mn)  mn.classList.add('active');
-  if(id==='stories') renderStoriesList();
+  if(id==='stories') loadStories();
   window.scrollTo(0,0);
 }
 
@@ -424,10 +423,24 @@ function removeCard(i){ projects.splice(i,1); renderCardEditors(); markDirty(); 
 function addCard(){ projects.push({icon:'✦',name:'Nuevo proyecto',desc:'Descripción.',url:'',soon:true}); renderCardEditors(); markDirty(); }
 
 // ── STORIES LIST ──
+let stories = [];
+
+async function loadStories(){
+  const c=document.getElementById('storiesList');
+  c.innerHTML='<p style="color:var(--muted);font-size:13px;">Cargando historias…</p>';
+  try{
+    const res = await fetch('/api/stories/all');
+    stories = await res.json();
+    renderStoriesList();
+  } catch(e){
+    c.innerHTML='<p style="color:#e07a5f;font-size:13px;">Error cargando historias.</p>';
+  }
+}
+
 function renderStoriesList(){
   const c=document.getElementById('storiesList');
   if(!stories.length){ c.innerHTML='<p style="color:var(--muted);font-size:13px;">No hay historias aún.</p>'; return; }
-  c.innerHTML=stories.map((s,i)=>`
+  c.innerHTML=stories.map((s)=>`
     <div class="story-row">
       <div class="story-thumb">
         ${s.image ? `<img src="${s.image}" alt="">` : '⏳'}
@@ -442,16 +455,22 @@ function renderStoriesList(){
         </div>
       </div>
       <div class="story-actions">
-        <button class="btn sm danger" onclick="deleteStory(${i})">✕</button>
+        <button class="btn sm danger" onclick="deleteStory(${s.id})">✕</button>
       </div>
     </div>
   `).join('');
 }
-function deleteStory(i){
+
+async function deleteStory(id){
   if(!confirm('¿Eliminar esta historia?')) return;
-  stories.splice(i,1);
-  lsSet(LS.stories, stories);
-  renderStoriesList();
+  try{
+    await fetch('/api/stories', {
+      method:'DELETE',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id })
+    });
+    await loadStories();
+  } catch(e){ alert('Error al eliminar.'); }
 }
 
 // ── EXTRACT META ──
@@ -508,7 +527,7 @@ function loadStoryImage(inp){
   r.readAsDataURL(f);
 }
 
-function saveStory(){
+async function saveStory(){
   const text=document.getElementById('addText').value.trim();
   if(!text){ alert('El texto no puede estar vacío.'); return; }
   const s={
@@ -522,14 +541,25 @@ function saveStory(){
     genre: document.getElementById('mGenre').value || '',
     image: addImage,
   };
-  stories.unshift(s);
-  lsSet(LS.stories, stories);
-  addImage=null;
-  document.getElementById('addText').value='';
-  document.getElementById('addImgPreview').classList.remove('v');
-  document.getElementById('extractedMeta').classList.remove('v');
-  ['mYear','mPlace','mAge','mSoup','mGenre','mTitle'].forEach(id=>document.getElementById(id).value='');
-  showPanel('stories');
+  const savBtn = document.querySelector('#panel-addstory .btn.primary');
+  if(savBtn){ savBtn.disabled=true; savBtn.textContent='Guardando…'; }
+  try{
+    await fetch('/api/stories', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(s)
+    });
+    addImage=null;
+    document.getElementById('addText').value='';
+    document.getElementById('addImgPreview').classList.remove('v');
+    document.getElementById('extractedMeta').classList.remove('v');
+    ['mYear','mPlace','mAge','mSoup','mGenre','mTitle'].forEach(id=>document.getElementById(id).value='');
+    showPanel('stories');
+  } catch(e){
+    alert('Error al guardar la historia.');
+  } finally{
+    if(savBtn){ savBtn.disabled=false; savBtn.textContent='Guardar historia'; }
+  }
 }
 
 // ── INIT ──
@@ -545,6 +575,17 @@ document.getElementById('lnkLI').value          = links.li;
 document.getElementById('lnkCustomLabel').value = links.customLabel;
 document.getElementById('lnkCustomURL').value   = links.customURL;
 renderCardEditors();
+</script>
+<script>
+// Netlify Identity — protege el admin
+if(window.netlifyIdentity){
+  window.netlifyIdentity.on('init', user => {
+    if(!user){
+      window.netlifyIdentity.on('login', () => window.location.reload());
+      window.netlifyIdentity.open();
+    }
+  });
+}
 </script>
 </body>
 </html>

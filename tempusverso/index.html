@@ -497,16 +497,7 @@ function truncateText(text, font, maxWidth, maxLines){
 }
 
 // ══ STORIES DATA ══
-const defaultStories = [
-  {
-    id:1,
-    title:'El rey de Praga',
-    text:'Es el año 1311, en las murallas de Praga. Agradeces a Dios porque hoy ningún mensajero llegó con noticias de guerra ni con disputas de impuestos entre nobles. Eres rey, y aunque la corona brilla, pesa más que una armadura mojada. Desde la ventana de piedra observas la plaza del mercado: panaderos golpeando masa, músicos torpes soplando flautas, niños corriendo detrás de gallinas como si el mundo fuera eterno. A veces bajas disfrazado con una capa vieja y capucha baja. Nadie se inclina. Nadie tiembla. Solo eres otro hombre entre muchos. Bebes cerveza agria, comes sopa de nabo flaco con tuétano de sapo obeso y escuchas historias absurdas de pescadores y zapateros. En esas noches el aire parece más ligero. Pero al regresar al castillo, los pergaminos y sellos vuelven a cubrir la mesa como nieve pesada. A tus 44 años envidias la vida simple de tus propios súbditos…pero comprendes que tu encomienda es sostener el peso del reino, para que ellos puedan vivir sin sentirlo.',
-    year:'1311', place:'Praga', age:'44', soup:'nabo', genre:'Tragedia',
-    image: null,
-  },
-];
-let stories = (()=>{ try{ return JSON.parse(localStorage.getItem('vg_stories')) || defaultStories; }catch(e){ return defaultStories; } })();
+let stories = [];
 
 // ══ FILTER STATE ══
 let activeGenre = null, activeSoup = null, activeEra = null, searchQ = '';
@@ -700,7 +691,7 @@ Responde ÚNICAMENTE con un JSON válido, sin markdown, sin texto extra, con exa
 }
 
 // ══ SAVE STORY ══
-function saveStory(){
+async function saveStory(){
   const text = document.getElementById('addText').value.trim();
   if(!text){ alert('El texto no puede estar vacío.'); return; }
 
@@ -716,8 +707,13 @@ function saveStory(){
     image: addImage,
   };
 
+  // Save to Blobs via API
+  await fetch('/api/stories', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(s)
+  });
   stories.unshift(s);
-  localStorage.setItem('vg_stories', JSON.stringify(stories));
   addImage = null;
   document.getElementById('addText').value = '';
   document.getElementById('addImgPreview').classList.remove('v');
@@ -734,8 +730,19 @@ document.addEventListener('keydown', e=>{
 });
 
 // ══ INIT ══
-buildChips();
-applyFilters();
+async function init(){
+  const grid = document.getElementById('storiesGrid');
+  document.getElementById('storyCount').textContent = 'Cargando…';
+  try{
+    const res = await fetch('/api/stories/all');
+    stories = await res.json();
+  } catch(e){
+    console.error('Error cargando historias', e);
+  }
+  buildChips();
+  applyFilters();
+}
+init();
 </script>
 </body>
 </html>
