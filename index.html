@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vidigoz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #050517;
+  --paprika:   #cf5c36;
+  --slate:     #577590;
+  --porcelain: #fdfffc;
+  --teal:      #2ec4b6;
+  --muted:     rgba(253,255,252,.5);
+  --rule:      rgba(253,255,252,.1);
+  --card-bg:   rgba(253,255,252,.04);
+  --card-border: rgba(253,255,252,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--ink);color:var(--porcelain);
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.65;
+}
+
+.page{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 28px;}
+
+/* header */
+header{padding:64px 0 52px;}
+.avatar-wrap{margin-bottom:22px;}
+#avatarImg{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--rule);display:none;}
+#avatarImg.v{display:block;}
+.wordmark{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,11vw,84px);
+  font-weight:300;letter-spacing:-.03em;line-height:1;
+  color:var(--porcelain);
+}
+.wordmark em{font-style:italic;color:var(--paprika);}
+.tagline{margin-top:14px;font-size:12px;font-weight:400;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);}
+
+/* rule */
+.rule{width:100%;height:1px;background:var(--rule);}
+
+/* sections */
+section{padding:52px 0;}
+.section-label{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:28px;}
+.bio{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(20px,4vw,26px);line-height:1.6;
+  color:var(--porcelain);max-width:520px;
+}
+.bio em{font-style:italic;color:var(--muted);}
+
+/* projects */
+.projects{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:520px){.projects{grid-template-columns:1fr;}}
+
+.card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:14px;padding:28px 24px;
+  text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;gap:10px;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+  position:relative;overflow:hidden;
+}
+.card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(207,92,54,.07) 0%,transparent 60%);
+  pointer-events:none;opacity:0;transition:opacity .25s;
+}
+.card:hover{transform:translateY(-3px);border-color:rgba(207,92,54,.3);box-shadow:0 12px 40px rgba(0,0,0,.4);}
+.card:hover::after{opacity:1;}
+.card.soon{background:transparent;border:1px dashed var(--rule);cursor:default;}
+.card.soon:hover{transform:none;box-shadow:none;border-color:var(--rule);}
+.card-icon{font-size:22px;line-height:1;}
+.card-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:-.02em;line-height:1.15;color:var(--porcelain);}
+.card-desc{font-size:12px;font-weight:400;color:var(--muted);line-height:1.6;flex:1;}
+.card-link{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--paprika);display:flex;align-items:center;gap:5px;margin-top:4px;}
+.card-link svg{transition:transform .2s;}
+.card:hover .card-link svg{transform:translateX(3px);}
+.card-badge{font-size:9px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px solid var(--rule);border-radius:20px;padding:3px 9px;align-self:flex-start;}
+
+/* links */
+.links{display:flex;flex-wrap:wrap;gap:10px;}
+.link-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:500;color:var(--porcelain);
+  text-decoration:none;padding:9px 16px;
+  border:1px solid var(--card-border);border-radius:100px;
+  background:var(--card-bg);
+  transition:border-color .15s,transform .15s;
+}
+.link-btn:hover{border-color:var(--paprika);transform:translateY(-1px);}
+.ic{font-size:14px;line-height:1;}
+
+/* footer */
+footer{padding:36px 0 56px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--rule);}
+.footer-name{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);}
+.footer-copy{font-size:11px;color:var(--muted);}
+.footer-admin{font-size:11px;color:var(--muted);text-decoration:none;opacity:.4;transition:opacity .15s;}
+.footer-admin:hover{opacity:1;}
+
+/* scroll reveal */
+section{opacity:0;transform:translateY(18px);}
+section.vis{animation:rise .7s cubic-bezier(.22,1,.36,1) forwards;}
+@keyframes rise{to{opacity:1;transform:translateY(0);}}
+
+@media(max-width:600px){
+  header{padding:40px 0 36px;}
+  .page{padding:0 18px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="avatar-wrap"><img id="avatarImg" src="" alt="avatar"></div>
+    <h1 class="wordmark" id="pgName">vidi<em>goz</em></h1>
+    <p class="tagline" id="pgTagline">Creador digital</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <section id="s1">
+    <p class="section-label">Acerca de</p>
+    <p class="bio" id="pgBio">Creo herramientas y contenido para <em>simplificar</em> el trabajo de los creadores digitales.</p>
+  </section>
+
+  <div class="rule"></div>
+
+  <section id="s2">
+    <p class="section-label">Proyectos</p>
+    <div class="projects" id="pgProjects"></div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section id="s3">
+    <p class="section-label">Conecta</p>
+    <div class="links" id="pgLinks"></div>
+  </section>
+
+  <footer>
+    <span class="footer-name" id="pgFooterName">vidigoz</span>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span class="footer-copy">© <span id="pgYear"></span></span>
+      <a href="/admin/" class="footer-admin">admin ↗</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ── shared localStorage keys ──
+const LS = {
+  identity: 'vg_identity',
+  projects: 'vg_projects',
+  links:    'vg_links',
+};
+
+const defaults = {
+  identity: {
+    name: 'vidigoz',
+    tagline: 'Creador digital',
+    bio: 'Creo herramientas y contenido para simplificar el trabajo de los creadores digitales.',
+    avatar: null,
+  },
+  projects: [
+    { icon:'⏳', name:'Tempusverso', desc:'Micro-historias en segunda persona desde distintos momentos de la historia.', url:'/tempusverso/', soon:false },
+    { icon:'🎬', name:'Vidiclip',    desc:'Editor de video en el navegador. Texto, imágenes, música y exportación directa.', url:'/vidiclip/', soon:true },
+    { icon:'✦',  name:'Próximamente', desc:'Nuevo proyecto en desarrollo.', url:'', soon:true },
+  ],
+  links: { ig:'', tt:'', yt:'', email:'', li:'', customLabel:'', customURL:'' },
+};
+
+function load(key){ try{ return JSON.parse(localStorage.getItem(key)); }catch(e){ return null; } }
+
+const identity = load(LS.identity) || defaults.identity;
+const projects  = load(LS.projects) || defaults.projects;
+const links     = load(LS.links)    || defaults.links;
+
+// render identity
+document.getElementById('pgYear').textContent = new Date().getFullYear();
+const n = identity.name;
+const split = n.length > 3 ? n.slice(0,-3)+'<em>'+n.slice(-3)+'</em>' : '<em>'+n+'</em>';
+document.getElementById('pgName').innerHTML = split;
+document.getElementById('pgTagline').textContent = identity.tagline;
+document.getElementById('pgBio').textContent = identity.bio;
+document.getElementById('pgFooterName').textContent = n;
+if(identity.avatar){
+  const img = document.getElementById('avatarImg');
+  img.src = identity.avatar; img.classList.add('v');
+}
+
+// render projects
+document.getElementById('pgProjects').innerHTML = projects.map(card => {
+  if(card.soon) return `
+    <div class="card soon">
+      <div class="card-icon" style="opacity:.3;">${card.icon||'✦'}</div>
+      <div class="card-name" style="color:var(--muted);">${card.name}</div>
+      <div class="card-desc">${card.desc}</div>
+      <div class="card-badge">En construcción</div>
+    </div>`;
+  return `
+    <a class="card" href="${card.url||'#'}">
+      <div class="card-icon">${card.icon}</div>
+      <div class="card-name">${card.name}</div>
+      <div class="card-desc">${card.desc}</div>
+      <div class="card-link">Abrir <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6h7m-3-3 3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </a>`;
+}).join('');
+
+// render links
+const linkDefs = [
+  { key:'ig',    icon:'📸', label:'Instagram', href: links.ig },
+  { key:'tt',    icon:'🎵', label:'TikTok',    href: links.tt },
+  { key:'yt',    icon:'▶️', label:'YouTube',   href: links.yt },
+  { key:'email', icon:'✉️', label:'Contacto',  href: links.email ? 'mailto:'+links.email : '' },
+  { key:'li',    icon:'💼', label:'LinkedIn',  href: links.li },
+  { key:'custom',icon:'🔗', label: links.customLabel||'Mi link', href: links.customURL },
+];
+document.getElementById('pgLinks').innerHTML = linkDefs.filter(d=>d.href).map(d=>
+  `<a class="link-btn" href="${d.href}" target="${d.href.startsWith('mailto')?'_self':'_blank'}" rel="noopener"><span class="ic">${d.icon}</span>${d.label}</a>`
+).join('');
+
+// scroll reveal
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('vis'); obs.unobserve(e.target); } });
+},{threshold:0.1});
+document.querySelectorAll('section').forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
