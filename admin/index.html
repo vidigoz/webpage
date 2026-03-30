@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — vidigoz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#050517; --paprika:#cf5c36; --slate:#577590;
+  --porcelain:#fdfffc; --teal:#2ec4b6;
+  --bg:#08081a; --surface:#0e0e24; --surface2:#13132e;
+  --border:rgba(253,255,252,.09); --muted:rgba(253,255,252,.4);
+  --dim:rgba(253,255,252,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--porcelain);-webkit-font-smoothing:antialiased;min-height:100vh;}
+
+/* ── TOPBAR ── */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:52px;background:var(--ink);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:12px;
+}
+.tb-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--porcelain);}
+.tb-logo span{color:var(--paprika);font-style:italic;}
+.tb-sep{width:1px;height:20px;background:var(--border);}
+.tb-tag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.tb-right{margin-left:auto;display:flex;gap:8px;}
+.tb-link{font-size:11px;color:var(--muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:6px;transition:all .15s;}
+.tb-link:hover{color:var(--porcelain);border-color:var(--slate);}
+
+/* ── LAYOUT ── */
+#layout{display:flex;margin-top:52px;min-height:calc(100vh - 52px);}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  width:210px;flex-shrink:0;
+  background:var(--surface);border-right:1px solid var(--border);
+  padding:20px 0;position:sticky;top:52px;height:calc(100vh - 52px);
+  overflow-y:auto;
+}
+.nav-section{padding:0 14px;margin-bottom:6px;}
+.nav-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:10px 6px 6px;display:block;}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:7px;
+  font-size:12px;color:var(--dim);cursor:pointer;
+  transition:all .15s;border:none;background:none;
+  width:100%;text-align:left;font-family:'DM Sans',sans-serif;
+}
+.nav-item:hover{background:rgba(253,255,252,.05);color:var(--porcelain);}
+.nav-item.active{background:rgba(207,92,54,.12);color:var(--paprika);}
+.nav-item .ni{font-size:14px;width:18px;text-align:center;}
+
+/* ── MAIN ── */
+#main{flex:1;padding:32px 28px;max-width:860px;}
+
+/* ── PANELS ── */
+.panel{display:none;}
+.panel.active{display:block;}
+.panel-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--porcelain);margin-bottom:4px;}
+.panel-sub{font-size:12px;color:var(--muted);margin-bottom:28px;}
+
+/* ── SECTIONS ── */
+.admin-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.admin-section-title{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+
+/* ── FIELDS ── */
+.field{margin-bottom:14px;}
+.label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px;}
+.inp,.textarea,.sel{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--porcelain);font-family:'DM Sans',sans-serif;
+  font-size:13px;padding:10px 12px;outline:none;transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.inp:focus,.textarea:focus,.sel:focus{border-color:var(--slate);}
+.textarea{min-height:90px;resize:vertical;line-height:1.6;}
+.color-row{display:flex;align-items:center;gap:10px;}
+.color-row input[type=color]{width:40px;height:36px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:2px;background:none;}
+
+/* ── BUTTONS ── */
+.btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  padding:9px 18px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--porcelain);cursor:pointer;
+  transition:all .18s;display:inline-flex;align-items:center;gap:7px;
+}
+.btn:hover{background:rgba(253,255,252,.06);border-color:var(--slate);}
+.btn.primary{background:var(--paprika);border-color:var(--paprika);color:#fff;font-weight:600;}
+.btn.primary:hover{background:#e06840;}
+.btn.teal{background:rgba(46,196,182,.12);border-color:rgba(46,196,182,.3);color:var(--teal);}
+.btn.teal:hover{background:rgba(46,196,182,.2);}
+.btn.sm{padding:6px 12px;font-size:11px;}
+.btn.danger{border-color:rgba(207,92,54,.3);color:#e07a5f;}
+.btn.danger:hover{background:rgba(207,92,54,.1);}
+
+/* ── CARD EDITORS ── */
+.card-editor{background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid var(--border);}
+.card-editor-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.card-editor-head span{font-size:12px;font-weight:600;color:var(--porcelain);}
+.card-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.card-fields .full{grid-column:1/-1;}
+.soon-check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;}
+.soon-check input{width:15px;height:15px;cursor:pointer;accent-color:var(--paprika);}
+
+/* ── STORY CARDS LIST ── */
+.story-row{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:12px;margin-bottom:8px;
+}
+.story-thumb{width:56px;height:56px;border-radius:6px;object-fit:cover;background:var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted);}
+.story-thumb img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
+.story-info{flex:1;min-width:0;}
+.story-title{font-size:13px;font-weight:500;color:var(--porcelain);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.story-meta{font-size:11px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;}
+.story-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ── ADD STORY ── */
+.extract-btn{
+  width:100%;padding:10px;border-radius:8px;
+  background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.25);
+  color:var(--teal);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .18s;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.extract-btn:hover{background:rgba(46,196,182,.2);}
+.extract-btn:disabled{opacity:.5;cursor:not-allowed;}
+.spinner{width:14px;height:14px;border:2px solid rgba(46,196,182,.3);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.spinner.v{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#extractedMeta{display:none;background:rgba(46,196,182,.06);border:1px solid rgba(46,196,182,.18);border-radius:8px;padding:14px;margin-bottom:14px;}
+#extractedMeta.v{display:block;}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.meta-item label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:3px;}
+.meta-item .inp{font-size:12px;padding:7px 9px;}
+
+/* img preview */
+.img-preview{width:100%;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--border);display:none;margin-bottom:8px;}
+.img-preview.v{display:block;}
+.file-btn{display:block;width:100%;text-align:center;padding:11px;border:1.5px dashed var(--border);border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;background:none;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.file-btn:hover{border-color:var(--paprika);color:var(--paprika);}
+
+/* save bar */
+.save-bar{
+  position:fixed;bottom:20px;right:28px;
+  display:flex;gap:10px;align-items:center;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:10px 16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.save-bar.show{opacity:1;pointer-events:auto;}
+.save-bar span{font-size:12px;color:var(--muted);}
+
+/* responsive */
+@media(max-width:640px){
+  #sidebar{display:none;}
+  #main{padding:20px 16px;}
+  .card-fields{grid-template-columns:1fr;}
+  .meta-grid{grid-template-columns:1fr;}
+  /* mobile bottom nav */
+  #mobileNav{display:flex;}
+}
+#mobileNav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:8px 0 env(safe-area-inset-bottom,0);z-index:100;
+}
+.mn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:.05em;transition:color .15s;}
+.mn-item.active{color:var(--paprika);}
+.mn-item .ni{font-size:18px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <span class="tb-logo">vidi<span>goz</span></span>
+  <div class="tb-sep"></div>
+  <span class="tb-tag">Admin</span>
+  <div class="tb-right">
+    <a href="/" class="tb-link">← Ver sitio</a>
+    <a href="/tempusverso/" class="tb-link">Tempusverso ↗</a>
+  </div>
+</div>
+
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="nav-section">
+      <span class="nav-label">Landing</span>
+      <button class="nav-item active" onclick="showPanel('identity')" id="nav-identity">
+        <span class="ni">👤</span> Identidad
+      </button>
+      <button class="nav-item" onclick="showPanel('projects')" id="nav-projects">
+        <span class="ni">🗂</span> Proyectos
+      </button>
+      <button class="nav-item" onclick="showPanel('links')" id="nav-links">
+        <span class="ni">🔗</span> Links
+      </button>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Tempusverso</span>
+      <button class="nav-item" onclick="showPanel('stories')" id="nav-stories">
+        <span class="ni">📖</span> Historias
+      </button>
+      <button class="nav-item" onclick="showPanel('addstory')" id="nav-addstory">
+        <span class="ni">✦</span> Nueva historia
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- IDENTITY -->
+    <div class="panel active" id="panel-identity">
+      <h1 class="panel-title">Identidad</h1>
+      <p class="panel-sub">Información principal del landing page</p>
+
+      <div class="admin-section">
+        <div class="admin-section-title">Perfil</div>
+        <div class="field">
+          <label class="label">Foto de perfil</label>
+          <img id="avatarPrev" class="img-preview" src="" alt="">
+          <label class="file-btn">📷 Subir foto<input type="file" accept="image/*" style="display:none" onchange="loadAvatar(this)"></label>
+        </div>
+        <div class="field">
+          <label class="label">Nombre / marca</label>
+          <input class="inp" id="inName" value="vidigoz" oninput="markDirty()">
+        </div>
+        <div class="field">
+          <label class="label">Tagline</label>
+          <input class="inp" id="inTagline" value="Creador digital" oninput="markDirty()">
+        </div>
+        <div class="field">
+          <label class="label">Bio</label>
+          <textarea class="textarea" id="inBio" oninput="markDirty()">Creo herramientas y contenido para simplificar el trabajo de los creadores digitales.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="panel" id="panel-projects">
+      <h1 class="panel-title">Proyectos</h1>
+      <p class="panel-sub">Tarjetas que aparecen en la sección de proyectos del landing</p>
+      <div id="cardEditors"></div>
+      <button class="btn" onclick="addCard()" style="width:100%;justify-content:center;border-style:dashed;">+ Agregar proyecto</button>
+    </div>
+
+    <!-- LINKS -->
+    <div class="panel" id="panel-links">
+      <h1 class="panel-title">Links de contacto</h1>
+      <p class="panel-sub">Solo aparecen los que tengan URL</p>
+      <div class="admin-section">
+        <div class="field"><label class="label">Instagram</label><input class="inp" id="lnkIG" placeholder="https://instagram.com/..." oninput="markDirty()"></div>
+        <div class="field"><label class="label">TikTok</label><input class="inp" id="lnkTT" placeholder="https://tiktok.com/@..." oninput="markDirty()"></div>
+        <div class="field"><label class="label">YouTube</label><input class="inp" id="lnkYT" placeholder="https://youtube.com/@..." oninput="markDirty()"></div>
+        <div class="field"><label class="label">Email</label><input class="inp" id="lnkEmail" placeholder="hola@tudominio.com" oninput="markDirty()"></div>
+        <div class="field"><label class="label">LinkedIn</label><input class="inp" id="lnkLI" placeholder="https://linkedin.com/in/..." oninput="markDirty()"></div>
+        <div class="field"><label class="label">Link personalizado — texto</label><input class="inp" id="lnkCustomLabel" placeholder="Mi portfolio" oninput="markDirty()"></div>
+        <div class="field"><label class="label">Link personalizado — URL</label><input class="inp" id="lnkCustomURL" placeholder="https://..." oninput="markDirty()"></div>
+      </div>
+    </div>
+
+    <!-- STORIES LIST -->
+    <div class="panel" id="panel-stories">
+      <h1 class="panel-title">Historias</h1>
+      <p class="panel-sub">Todas las historias de Tempusverso</p>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+        <button class="btn primary" onclick="showPanel('addstory')">+ Nueva historia</button>
+      </div>
+      <div id="storiesList"></div>
+    </div>
+
+    <!-- ADD STORY -->
+    <div class="panel" id="panel-addstory">
+      <h1 class="panel-title">Nueva historia</h1>
+      <p class="panel-sub">Pega el texto y Claude extraerá los metadatos automáticamente</p>
+
+      <div class="admin-section">
+        <div class="field">
+          <label class="label">Texto de la historia</label>
+          <textarea class="textarea" id="addText" style="min-height:160px;" placeholder="Pega aquí el texto de la historia…"></textarea>
+        </div>
+
+        <button class="extract-btn" id="extractBtn" onclick="extractMeta()">
+          <div class="spinner" id="extractSpinner"></div>
+          <span id="extractBtnLabel">✦ Extraer metadatos con IA</span>
+        </button>
+
+        <div id="extractedMeta">
+          <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);">✦ Metadatos detectados — puedes corregir</div>
+          <div class="meta-grid">
+            <div class="meta-item"><label>Año</label><input class="inp" id="mYear" placeholder="ej: 1311"></div>
+            <div class="meta-item"><label>Lugar</label><input class="inp" id="mPlace" placeholder="ej: Praga"></div>
+            <div class="meta-item"><label>Edad del personaje</label><input class="inp" id="mAge" placeholder="ej: 44"></div>
+            <div class="meta-item"><label>Tipo de sopa</label><input class="inp" id="mSoup" placeholder="ej: nabo"></div>
+            <div class="meta-item"><label>Género</label><input class="inp" id="mGenre" placeholder="ej: Tragedia"></div>
+            <div class="meta-item"><label>Título sugerido</label><input class="inp" id="mTitle" placeholder="ej: El rey de Praga"></div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label class="label">Imagen</label>
+          <img id="addImgPreview" class="img-preview" src="" alt="">
+          <label class="file-btn">🖼 Subir imagen<input type="file" accept="image/*" style="display:none" onchange="loadStoryImage(this)"></label>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:6px;">
+          <button class="btn" onclick="showPanel('stories')">Cancelar</button>
+          <button class="btn primary" style="flex:1;justify-content:center;" onclick="saveStory()">Guardar historia</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- SAVE BAR -->
+<div class="save-bar" id="saveBar">
+  <span>Cambios sin guardar</span>
+  <button class="btn sm primary" onclick="saveAll()">Guardar</button>
+</div>
+
+<!-- MOBILE NAV -->
+<div id="mobileNav">
+  <button class="mn-item active" onclick="showPanel('identity')" id="mn-identity"><span class="ni">👤</span>Identidad</button>
+  <button class="mn-item" onclick="showPanel('projects')" id="mn-projects"><span class="ni">🗂</span>Proyectos</button>
+  <button class="mn-item" onclick="showPanel('stories')" id="mn-stories"><span class="ni">📖</span>Historias</button>
+  <button class="mn-item" onclick="showPanel('addstory')" id="mn-addstory"><span class="ni">✦</span>Nueva</button>
+</div>
+
+<script>
+// ── LS KEYS (shared with landing) ──
+const LS = { identity:'vg_identity', projects:'vg_projects', links:'vg_links', stories:'vg_stories' };
+function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function lsSet(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+
+// ── STATE ──
+let identity = lsGet(LS.identity) || { name:'vidigoz', tagline:'Creador digital', bio:'Creo herramientas y contenido para simplificar el trabajo de los creadores digitales.', avatar:null };
+let projects  = lsGet(LS.projects) || [
+  { icon:'⏳', name:'Tempusverso', desc:'Micro-historias en segunda persona desde distintos momentos de la historia.', url:'/tempusverso/', soon:false },
+  { icon:'🎬', name:'Vidiclip', desc:'Editor de video en el navegador. Texto, imágenes, música y exportación directa.', url:'/vidiclip/', soon:true },
+];
+let links    = lsGet(LS.links)    || { ig:'', tt:'', yt:'', email:'', li:'', customLabel:'', customURL:'' };
+let stories  = lsGet(LS.stories)  || [
+  { id:1, title:'El rey de Praga', text:'Es el año 1311, en las murallas de Praga. Agradeces a Dios porque hoy ningún mensajero llegó con noticias de guerra ni con disputas de impuestos entre nobles. Eres rey, y aunque la corona brilla, pesa más que una armadura mojada.', year:'1311', place:'Praga', age:'44', soup:'nabo', genre:'Tragedia', image:null }
+];
+let dirty = false;
+let addImage = null;
+
+// ── PANELS ──
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item,.mn-item').forEach(b=>b.classList.remove('active'));
+  const nav = document.getElementById('nav-'+id);
+  const mn  = document.getElementById('mn-'+id);
+  if(nav) nav.classList.add('active');
+  if(mn)  mn.classList.add('active');
+  if(id==='stories') renderStoriesList();
+  window.scrollTo(0,0);
+}
+
+// ── DIRTY / SAVE ──
+function markDirty(){ dirty=true; document.getElementById('saveBar').classList.add('show'); }
+function saveAll(){
+  identity.name    = document.getElementById('inName').value;
+  identity.tagline = document.getElementById('inTagline').value;
+  identity.bio     = document.getElementById('inBio').value;
+  lsSet(LS.identity, identity);
+  lsSet(LS.projects, projects);
+  links.ig          = document.getElementById('lnkIG').value;
+  links.tt          = document.getElementById('lnkTT').value;
+  links.yt          = document.getElementById('lnkYT').value;
+  links.email       = document.getElementById('lnkEmail').value;
+  links.li          = document.getElementById('lnkLI').value;
+  links.customLabel = document.getElementById('lnkCustomLabel').value;
+  links.customURL   = document.getElementById('lnkCustomURL').value;
+  lsSet(LS.links, links);
+  dirty = false;
+  document.getElementById('saveBar').classList.remove('show');
+}
+
+// ── AVATAR ──
+function loadAvatar(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    identity.avatar=e.target.result;
+    const prev=document.getElementById('avatarPrev');
+    prev.src=identity.avatar; prev.classList.add('v');
+    markDirty();
+  };
+  r.readAsDataURL(f);
+}
+
+// ── PROJECTS ──
+function renderCardEditors(){
+  document.getElementById('cardEditors').innerHTML = projects.map((c,i)=>`
+    <div class="card-editor" id="ce-${i}">
+      <div class="card-editor-head">
+        <span>${c.icon||'✦'} ${c.name}</span>
+        <button class="btn sm danger" onclick="removeCard(${i})">✕ Quitar</button>
+      </div>
+      <div class="card-fields">
+        <div><label class="label">Emoji</label><input class="inp" value="${c.icon||''}" oninput="updateCard(${i},'icon',this.value)" placeholder="⏳"></div>
+        <div><label class="label">Nombre</label><input class="inp" value="${c.name||''}" oninput="updateCard(${i},'name',this.value)"></div>
+        <div class="full"><label class="label">Descripción</label><textarea class="textarea" style="min-height:60px;" oninput="updateCard(${i},'desc',this.value)">${c.desc||''}</textarea></div>
+        <div class="full"><label class="label">URL (ej: /tempusverso/)</label><input class="inp" value="${c.url||''}" oninput="updateCard(${i},'url',this.value)"></div>
+        <div class="full"><label class="soon-check"><input type="checkbox" ${c.soon?'checked':''} onchange="updateCard(${i},'soon',this.checked)"> Marcar como "Próximamente"</label></div>
+      </div>
+    </div>
+  `).join('');
+}
+function updateCard(i,prop,val){ projects[i][prop]=val; const h=document.querySelector(`#ce-${i} .card-editor-head span`); if(h)h.textContent=(projects[i].icon||'✦')+' '+(projects[i].name||''); markDirty(); }
+function removeCard(i){ projects.splice(i,1); renderCardEditors(); markDirty(); }
+function addCard(){ projects.push({icon:'✦',name:'Nuevo proyecto',desc:'Descripción.',url:'',soon:true}); renderCardEditors(); markDirty(); }
+
+// ── STORIES LIST ──
+function renderStoriesList(){
+  const c=document.getElementById('storiesList');
+  if(!stories.length){ c.innerHTML='<p style="color:var(--muted);font-size:13px;">No hay historias aún.</p>'; return; }
+  c.innerHTML=stories.map((s,i)=>`
+    <div class="story-row">
+      <div class="story-thumb">
+        ${s.image ? `<img src="${s.image}" alt="">` : '⏳'}
+      </div>
+      <div class="story-info">
+        <div class="story-title">${s.title}</div>
+        <div class="story-meta">
+          <span>📅 ${s.year||'?'}</span>
+          <span>📍 ${s.place||'—'}</span>
+          ${s.soup?`<span>🍲 ${s.soup}</span>`:''}
+          ${s.genre?`<span>· ${s.genre}</span>`:''}
+        </div>
+      </div>
+      <div class="story-actions">
+        <button class="btn sm danger" onclick="deleteStory(${i})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+function deleteStory(i){
+  if(!confirm('¿Eliminar esta historia?')) return;
+  stories.splice(i,1);
+  lsSet(LS.stories, stories);
+  renderStoriesList();
+}
+
+// ── EXTRACT META ──
+async function extractMeta(){
+  const text=document.getElementById('addText').value.trim();
+  if(!text){ alert('Primero pega el texto.'); return; }
+  const btn=document.getElementById('extractBtn');
+  const spinner=document.getElementById('extractSpinner');
+  const label=document.getElementById('extractBtnLabel');
+  btn.disabled=true; spinner.classList.add('v'); label.textContent='Analizando…';
+  try{
+    const res=await fetch('/api/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:500,
+        system:`Eres un analizador de micro-historias. El usuario pega el texto de una historia corta escrita en segunda persona, ambientada en algún momento histórico. Extrae los metadatos clave.
+
+Responde ÚNICAMENTE con JSON válido, sin markdown, sin texto extra:
+{
+  "year": "año mencionado (solo número)",
+  "place": "ciudad o lugar principal",
+  "age": "edad del personaje si se menciona (número), o null",
+  "soup": "tipo de sopa mencionado (solo ingrediente principal), o null",
+  "genre": "género: Tragedia, Comedia, Amor, Aventura, Misterio, Guerra, u otro",
+  "title": "título breve y evocador (máx 6 palabras)"
+}`,
+        messages:[{role:'user',content:text}]
+      })
+    });
+    const data=await res.json();
+    const raw=data.content?.[0]?.text||'{}';
+    let meta; try{ meta=JSON.parse(raw.replace(/```json|```/g,'').trim()); }catch(e){ meta={}; }
+    document.getElementById('mYear').value  = meta.year  || '';
+    document.getElementById('mPlace').value = meta.place || '';
+    document.getElementById('mAge').value   = meta.age   || '';
+    document.getElementById('mSoup').value  = meta.soup  || '';
+    document.getElementById('mGenre').value = meta.genre || '';
+    document.getElementById('mTitle').value = meta.title || '';
+    document.getElementById('extractedMeta').classList.add('v');
+  }catch(e){ alert('Error al conectar con la API.'); console.error(e); }
+  finally{ btn.disabled=false; spinner.classList.remove('v'); label.textContent='✦ Extraer metadatos con IA'; }
+}
+
+function loadStoryImage(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    addImage=e.target.result;
+    const prev=document.getElementById('addImgPreview');
+    prev.src=addImage; prev.classList.add('v');
+  };
+  r.readAsDataURL(f);
+}
+
+function saveStory(){
+  const text=document.getElementById('addText').value.trim();
+  if(!text){ alert('El texto no puede estar vacío.'); return; }
+  const s={
+    id:Date.now(),
+    title: document.getElementById('mTitle').value || 'Sin título',
+    text,
+    year:  document.getElementById('mYear').value  || '',
+    place: document.getElementById('mPlace').value || '',
+    age:   document.getElementById('mAge').value   || '',
+    soup:  document.getElementById('mSoup').value  || '',
+    genre: document.getElementById('mGenre').value || '',
+    image: addImage,
+  };
+  stories.unshift(s);
+  lsSet(LS.stories, stories);
+  addImage=null;
+  document.getElementById('addText').value='';
+  document.getElementById('addImgPreview').classList.remove('v');
+  document.getElementById('extractedMeta').classList.remove('v');
+  ['mYear','mPlace','mAge','mSoup','mGenre','mTitle'].forEach(id=>document.getElementById(id).value='');
+  showPanel('stories');
+}
+
+// ── INIT ──
+document.getElementById('inName').value    = identity.name;
+document.getElementById('inTagline').value = identity.tagline;
+document.getElementById('inBio').value     = identity.bio;
+if(identity.avatar){ const p=document.getElementById('avatarPrev'); p.src=identity.avatar; p.classList.add('v'); }
+document.getElementById('lnkIG').value          = links.ig;
+document.getElementById('lnkTT').value          = links.tt;
+document.getElementById('lnkYT').value          = links.yt;
+document.getElementById('lnkEmail').value       = links.email;
+document.getElementById('lnkLI').value          = links.li;
+document.getElementById('lnkCustomLabel').value = links.customLabel;
+document.getElementById('lnkCustomURL').value   = links.customURL;
+renderCardEditors();
+</script>
+</body>
+</html>

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tempusverso — Historias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #050517;
+  --paprika:   #cf5c36;
+  --slate:     #577590;
+  --porcelain: #fdfffc;
+  --teal:      #2ec4b6;
+  --ink-mid:   #0d0d2b;
+  --ink-soft:  rgba(253,255,252,.08);
+  --ink-muted: rgba(253,255,252,.38);
+  --ink-dim:   rgba(253,255,252,.55);
+  --card-bg:   #0b0b1f;
+  --card-border: rgba(87,117,144,.22);
+  --radius: 12px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--ink);
+  color:var(--porcelain);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* noise overlay */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.7;
+}
+
+/* ══ HEADER ══ */
+header{
+  position:relative;z-index:10;
+  padding:52px 28px 40px;
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  flex-wrap:wrap;gap:20px;
+}
+.brand{display:flex;flex-direction:column;gap:6px;}
+.brand-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(38px,7vw,64px);
+  font-weight:300;letter-spacing:-.02em;line-height:1;
+  color:var(--porcelain);
+}
+.brand-name span{color:var(--paprika);font-style:italic;}
+.brand-sub{
+  font-size:11px;font-weight:400;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-muted);
+}
+.header-actions{display:flex;gap:10px;align-items:center;}
+
+/* ══ BUTTONS ══ */
+.btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  padding:9px 18px;border-radius:8px;border:1px solid var(--card-border);
+  background:var(--ink-soft);color:var(--porcelain);cursor:pointer;
+  transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:7px;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:hover{background:rgba(87,117,144,.2);border-color:var(--slate);}
+.btn.accent{background:var(--paprika);border-color:var(--paprika);color:#fff;font-weight:600;}
+.btn.accent:hover{background:#e06840;}
+
+/* ══ FILTERS ══ */
+#filterBar{
+  position:relative;z-index:10;
+  max-width:1100px;margin:0 auto;
+  padding:0 28px 28px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.filter-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-muted);white-space:nowrap;min-width:60px;}
+.filter-chips{display:flex;gap:7px;flex-wrap:wrap;}
+.chip{
+  font-size:11px;padding:5px 13px;border-radius:99px;
+  border:1px solid var(--card-border);background:transparent;
+  color:var(--ink-dim);cursor:pointer;transition:all .15s;
+  font-family:'DM Sans',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:hover{border-color:var(--slate);color:var(--porcelain);}
+.chip.active{background:var(--paprika);border-color:var(--paprika);color:#fff;}
+.chip.teal.active{background:var(--teal);border-color:var(--teal);color:var(--ink);}
+.chip.slate.active{background:var(--slate);border-color:var(--slate);color:#fff;}
+
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:340px;}
+.search-wrap input{
+  width:100%;background:var(--ink-soft);border:1px solid var(--card-border);
+  border-radius:8px;color:var(--porcelain);font-family:'DM Sans',sans-serif;
+  font-size:13px;padding:9px 12px 9px 36px;outline:none;
+  transition:border-color .15s;
+}
+.search-wrap input::placeholder{color:var(--ink-muted);}
+.search-wrap input:focus{border-color:var(--slate);}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.4;pointer-events:none;}
+
+/* ══ GRID ══ */
+#storiesGrid{
+  position:relative;z-index:5;
+  max-width:1100px;margin:0 auto;
+  padding:0 28px 80px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:16px;
+}
+
+/* ══ STORY CARD ══ */
+.story-card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius);
+  overflow:hidden;cursor:pointer;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+  display:flex;flex-direction:column;
+  animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;
+}
+.story-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(87,117,144,.5);
+  box-shadow:0 12px 40px rgba(0,0,0,.4);
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+.card-img{
+  width:100%;aspect-ratio:4/3;
+  background:var(--ink-mid);
+  overflow:hidden;position:relative;
+  flex-shrink:0;
+}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.story-card:hover .card-img img{transform:scale(1.04);}
+.card-img-placeholder{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-size:36px;opacity:.15;
+}
+
+.card-genre{
+  position:absolute;top:10px;left:10px;
+  font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;backdrop-filter:blur(8px);
+}
+.genre-tragedia{background:rgba(207,92,54,.25);color:#f5957a;border:1px solid rgba(207,92,54,.3);}
+.genre-comedia{background:rgba(46,196,182,.2);color:#5eddd4;border:1px solid rgba(46,196,182,.3);}
+.genre-amor{background:rgba(200,100,140,.2);color:#e89ab8;border:1px solid rgba(200,100,140,.3);}
+.genre-aventura{background:rgba(87,117,144,.25);color:#8ab0cc;border:1px solid rgba(87,117,144,.3);}
+.genre-misterio{background:rgba(150,100,200,.2);color:#c4a0e8;border:1px solid rgba(150,100,200,.3);}
+.genre-guerra{background:rgba(180,60,60,.2);color:#d88080;border:1px solid rgba(180,60,60,.3);}
+.genre-default{background:rgba(253,255,252,.08);color:var(--ink-dim);border:1px solid var(--card-border);}
+
+.card-body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+
+.card-year{
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--paprika);font-weight:500;
+}
+.card-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;font-weight:400;line-height:1.3;
+  color:var(--porcelain);
+}
+.card-excerpt{
+  font-size:12px;line-height:1.65;
+  color:var(--ink-dim);
+  flex:1;
+}
+.card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:10px;border-top:1px solid var(--ink-soft);
+  margin-top:4px;
+}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.tag{
+  font-size:9px;padding:3px 8px;border-radius:4px;
+  background:var(--ink-soft);color:var(--ink-muted);
+  border:1px solid rgba(253,255,252,.06);
+}
+.card-arrow{font-size:14px;color:var(--ink-muted);transition:transform .2s,color .2s;}
+.story-card:hover .card-arrow{transform:translateX(3px);color:var(--paprika);}
+
+/* empty state */
+#emptyState{
+  display:none;grid-column:1/-1;
+  padding:60px 20px;text-align:center;
+  color:var(--ink-muted);
+}
+#emptyState p{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;margin-bottom:8px;color:var(--ink-dim);}
+#emptyState span{font-size:12px;}
+
+/* ══ MODAL ══ */
+#modal{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+#modal.open{opacity:1;pointer-events:auto;}
+#modalOverlay{position:absolute;inset:0;background:rgba(5,5,23,.88);backdrop-filter:blur(6px);}
+#modalBox{
+  position:relative;z-index:1;
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:16px;width:100%;max-width:680px;max-height:90vh;
+  overflow-y:auto;display:flex;flex-direction:column;
+  transform:translateY(20px);transition:transform .28s cubic-bezier(.22,1,.36,1);
+}
+#modal.open #modalBox{transform:translateY(0);}
+#modalImg{width:100%;aspect-ratio:16/9;object-fit:cover;display:none;}
+#modalImg.v{display:block;}
+#modalBody{padding:28px 28px 36px;}
+#modalGenre{font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px;display:inline-block;}
+#modalTitle{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,5vw,36px);font-weight:300;line-height:1.2;margin-bottom:20px;color:var(--porcelain);}
+#modalText{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,2.2vw,20px);line-height:1.75;color:var(--ink-dim);margin-bottom:24px;}
+#modalMeta{display:flex;gap:10px;flex-wrap:wrap;}
+.meta-pill{font-size:11px;padding:5px 12px;border-radius:99px;background:var(--ink-soft);border:1px solid var(--card-border);color:var(--ink-dim);}
+#modalClose{
+  position:absolute;top:14px;right:14px;
+  background:var(--ink-soft);border:1px solid var(--card-border);
+  color:var(--ink-dim);border-radius:50%;width:32px;height:32px;
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;z-index:2;
+}
+#modalClose:hover{background:rgba(207,92,54,.2);border-color:var(--paprika);color:var(--paprika);}
+
+/* ══ ADD STORY MODAL ══ */
+#addModal{
+  position:fixed;inset:0;z-index:1001;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+@media(min-width:601px){#addModal{align-items:center;}}
+#addModal.open{opacity:1;pointer-events:auto;}
+#addOverlay{position:absolute;inset:0;background:rgba(5,5,23,.88);backdrop-filter:blur(6px);}
+#addBox{
+  position:relative;z-index:1;
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:16px 16px 0 0;width:100%;max-width:640px;
+  max-height:92vh;overflow-y:auto;padding:28px;
+  transform:translateY(40px);transition:transform .3s cubic-bezier(.22,1,.36,1);
+}
+@media(min-width:601px){#addBox{border-radius:16px;transform:translateY(20px);}}
+#addModal.open #addBox{transform:translateY(0);}
+#addBox::before{
+  content:'';display:block;width:40px;height:4px;
+  background:var(--card-border);border-radius:99px;
+  margin:0 auto 20px;
+}
+@media(min-width:601px){#addBox::before{display:none;}}
+
+.add-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--porcelain);margin-bottom:4px;}
+.add-sub{font-size:12px;color:var(--ink-muted);margin-bottom:20px;}
+.add-field{margin-bottom:14px;}
+.add-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);display:block;margin-bottom:5px;}
+.add-input,.add-textarea{
+  width:100%;background:rgba(253,255,252,.05);border:1px solid var(--card-border);
+  border-radius:8px;color:var(--porcelain);font-family:'DM Sans',sans-serif;
+  font-size:14px;padding:10px 12px;outline:none;transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.add-input:focus,.add-textarea:focus{border-color:var(--slate);}
+.add-textarea{min-height:140px;resize:vertical;line-height:1.6;font-size:13px;}
+.add-img-preview{width:100%;height:120px;object-fit:cover;border-radius:8px;border:1px solid var(--card-border);display:none;margin-bottom:8px;}
+.add-img-preview.v{display:block;}
+.add-file-btn{
+  display:block;width:100%;text-align:center;padding:11px;
+  border:1.5px dashed var(--card-border);border-radius:8px;
+  font-size:12px;color:var(--ink-muted);cursor:pointer;
+  background:none;font-family:'DM Sans',sans-serif;transition:all .15s;
+}
+.add-file-btn:hover{border-color:var(--paprika);color:var(--paprika);}
+
+/* extracted metadata */
+#extractedMeta{
+  display:none;background:rgba(46,196,182,.07);
+  border:1px solid rgba(46,196,182,.2);border-radius:8px;
+  padding:12px;margin-bottom:14px;
+}
+#extractedMeta.v{display:block;}
+.meta-extracted-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.meta-item label{font-size:9px;color:var(--ink-muted);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.1em;}
+.meta-item input{
+  width:100%;background:rgba(253,255,252,.05);border:1px solid var(--card-border);
+  border-radius:5px;color:var(--porcelain);font-family:'DM Sans',sans-serif;
+  font-size:12px;padding:6px 8px;outline:none;
+}
+.meta-item input:focus{border-color:var(--teal);}
+
+.extract-btn{
+  width:100%;padding:10px;border-radius:8px;
+  background:rgba(46,196,182,.12);border:1px solid rgba(46,196,182,.25);
+  color:var(--teal);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .18s;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.extract-btn:hover{background:rgba(46,196,182,.2);}
+.extract-btn:disabled{opacity:.5;cursor:not-allowed;}
+.spinner{width:14px;height:14px;border:2px solid rgba(46,196,182,.3);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.spinner.v{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.add-actions{display:flex;gap:10px;margin-top:6px;}
+.add-close{background:none;border:1px solid var(--card-border);color:var(--ink-muted);border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;}
+.add-close:hover{border-color:var(--slate);color:var(--porcelain);}
+
+/* count */
+#storyCount{font-size:11px;color:var(--ink-muted);padding:0 28px 12px;max-width:1100px;margin:0 auto;position:relative;z-index:5;}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:99px;}
+
+@media(max-width:600px){
+  header{padding:32px 16px 24px;}
+  #filterBar{padding:0 16px 20px;}
+  #storiesGrid{padding:0 16px 60px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+  #storyCount{padding:0 16px 10px;}
+  #modalBody{padding:20px 20px 28px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="brand">
+    <a href="/" style="font-size:11px;color:var(--ink-muted);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:inline-flex;align-items:center;gap:5px;transition:color .15s;" onmouseover="this.style.color='var(--paprika)'" onmouseout="this.style.color='var(--ink-muted)'">← vidigoz</a>
+    <h1 class="brand-name">Tempus<span>verso</span></h1>
+    <p class="brand-sub">Historias desde otros tiempos</p>
+  </div>
+  <div class="header-actions">
+    <a href="/admin/index.html#stories" class="btn" style="text-decoration:none;">⚙ Admin</a>
+    <button class="btn accent" onclick="openAdd()">+ Nueva historia</button>
+  </div>
+</header>
+
+<!-- ══ FILTERS ══ -->
+<div id="filterBar">
+  <div class="filter-row">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar historia…" id="searchInput" oninput="applyFilters()">
+    </div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Género</span>
+    <div class="filter-chips" id="genreChips"></div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Sopa</span>
+    <div class="filter-chips" id="soupeChips"></div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Época</span>
+    <div class="filter-chips" id="eraChips"></div>
+  </div>
+</div>
+
+<div id="storyCount"></div>
+
+<!-- ══ GRID ══ -->
+<div id="storiesGrid">
+  <div id="emptyState">
+    <p>Ninguna historia coincide</p>
+    <span>Prueba otros filtros</span>
+  </div>
+</div>
+
+<!-- ══ STORY MODAL ══ -->
+<div id="modal">
+  <div id="modalOverlay" onclick="closeModal()"></div>
+  <div id="modalBox">
+    <button id="modalClose" onclick="closeModal()">✕</button>
+    <img id="modalImg" src="" alt="">
+    <div id="modalBody">
+      <span id="modalGenre"></span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <div id="modalMeta"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD STORY MODAL ══ -->
+<div id="addModal">
+  <div id="addOverlay" onclick="closeAdd()"></div>
+  <div id="addBox">
+    <h2 class="add-title">Nueva historia</h2>
+    <p class="add-sub">Pega el texto y Claude extraerá los metadatos automáticamente</p>
+
+    <div class="add-field">
+      <label class="add-label">Texto de la historia</label>
+      <textarea class="add-textarea" id="addText" placeholder="Pega aquí el texto de la historia…"></textarea>
+    </div>
+
+    <button class="extract-btn" id="extractBtn" onclick="extractMeta()">
+      <div class="spinner" id="extractSpinner"></div>
+      <span id="extractBtnLabel">✦ Extraer metadatos con IA</span>
+    </button>
+
+    <div id="extractedMeta">
+      <div class="meta-extracted-title">✦ Metadatos detectados — puedes corregir</div>
+      <div class="meta-grid">
+        <div class="meta-item"><label>Año</label><input id="mYear" type="text" placeholder="ej: 1311"></div>
+        <div class="meta-item"><label>Lugar</label><input id="mPlace" type="text" placeholder="ej: Praga"></div>
+        <div class="meta-item"><label>Edad del personaje</label><input id="mAge" type="text" placeholder="ej: 44"></div>
+        <div class="meta-item"><label>Tipo de sopa</label><input id="mSoup" type="text" placeholder="ej: nabo"></div>
+        <div class="meta-item"><label>Género</label><input id="mGenre" type="text" placeholder="ej: Tragedia"></div>
+        <div class="meta-item"><label>Título sugerido</label><input id="mTitle" type="text" placeholder="ej: El rey de Praga"></div>
+      </div>
+    </div>
+
+    <div class="add-field">
+      <label class="add-label">Imagen</label>
+      <img id="addImgPreview" class="add-img-preview" src="" alt="">
+      <label class="add-file-btn">
+        🖼 Subir imagen
+        <input type="file" accept="image/*" style="display:none" onchange="loadAddImage(this)">
+      </label>
+    </div>
+
+    <div class="add-actions">
+      <button class="add-close" onclick="closeAdd()">Cancelar</button>
+      <button class="btn accent" style="flex:1;justify-content:center;" onclick="saveStory()">Guardar historia</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ PALETTE ══
+const GENRE_CLASS = {
+  tragedia:'genre-tragedia', comedia:'genre-comedia', amor:'genre-amor',
+  aventura:'genre-aventura', misterio:'genre-misterio', guerra:'genre-guerra',
+};
+function genreClass(g){ return GENRE_CLASS[(g||'').toLowerCase()] || 'genre-default'; }
+
+// ══ ERA helper ══
+function getEra(year){
+  const y = parseInt(year);
+  if(isNaN(y)) return 'Desconocida';
+  if(y < 500)  return 'Antigüedad';
+  if(y < 1500) return 'Medieval';
+  if(y < 1800) return 'Renacimiento';
+  if(y < 1920) return 'S. XIX';
+  if(y < 2000) return 'S. XX';
+  return 'Contemporáneo';
+}
+
+// ══ PRETEXT: measure & truncate ══
+function measureText(text, font, maxWidth, lineHeight){
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d');
+  ctx.font = font;
+  const words = text.split(' ');
+  let lines = 1, cur = '';
+  for(const w of words){
+    const t = cur ? cur+' '+w : w;
+    if(ctx.measureText(t).width > maxWidth && cur){ lines++; cur = w; }
+    else cur = t;
+  }
+  return { lineCount: lines, height: lines * lineHeight };
+}
+function truncateText(text, font, maxWidth, maxLines){
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d');
+  ctx.font = font;
+  const words = text.split(' ');
+  let lines = [], cur = '';
+  for(const w of words){
+    const t = cur ? cur+' '+w : w;
+    if(ctx.measureText(t).width > maxWidth && cur){
+      lines.push(cur);
+      if(lines.length >= maxLines){
+        let last = lines[maxLines-1];
+        while(ctx.measureText(last+'…').width > maxWidth && last.length > 0)
+          last = last.slice(0,-1).trimEnd();
+        lines[maxLines-1] = last+'…';
+        return lines.slice(0,maxLines).join(' ');
+      }
+      cur = w;
+    } else cur = t;
+  }
+  if(cur) lines.push(cur);
+  return lines.slice(0,maxLines).join(' ');
+}
+
+// ══ STORIES DATA ══
+const defaultStories = [
+  {
+    id:1,
+    title:'El rey de Praga',
+    text:'Es el año 1311, en las murallas de Praga. Agradeces a Dios porque hoy ningún mensajero llegó con noticias de guerra ni con disputas de impuestos entre nobles. Eres rey, y aunque la corona brilla, pesa más que una armadura mojada. Desde la ventana de piedra observas la plaza del mercado: panaderos golpeando masa, músicos torpes soplando flautas, niños corriendo detrás de gallinas como si el mundo fuera eterno. A veces bajas disfrazado con una capa vieja y capucha baja. Nadie se inclina. Nadie tiembla. Solo eres otro hombre entre muchos. Bebes cerveza agria, comes sopa de nabo flaco con tuétano de sapo obeso y escuchas historias absurdas de pescadores y zapateros. En esas noches el aire parece más ligero. Pero al regresar al castillo, los pergaminos y sellos vuelven a cubrir la mesa como nieve pesada. A tus 44 años envidias la vida simple de tus propios súbditos…pero comprendes que tu encomienda es sostener el peso del reino, para que ellos puedan vivir sin sentirlo.',
+    year:'1311', place:'Praga', age:'44', soup:'nabo', genre:'Tragedia',
+    image: null,
+  },
+];
+let stories = (()=>{ try{ return JSON.parse(localStorage.getItem('vg_stories')) || defaultStories; }catch(e){ return defaultStories; } })();
+
+// ══ FILTER STATE ══
+let activeGenre = null, activeSoup = null, activeEra = null, searchQ = '';
+
+// ══ BUILD FILTER CHIPS ══
+function buildChips(){
+  const genres = [...new Set(stories.map(s=>s.genre).filter(Boolean))];
+  const soups  = [...new Set(stories.map(s=>s.soup).filter(Boolean))];
+  const eras   = [...new Set(stories.map(s=>getEra(s.year)).filter(Boolean))];
+
+  renderChips('genreChips', genres, ()=>activeGenre, v=>{ activeGenre = activeGenre===v?null:v; applyFilters(); });
+  renderChips('soupeChips', soups,  ()=>activeSoup,  v=>{ activeSoup  = activeSoup===v?null:v;  applyFilters(); }, 'teal');
+  renderChips('eraChips',   eras,   ()=>activeEra,   v=>{ activeEra   = activeEra===v?null:v;   applyFilters(); }, 'slate');
+}
+function renderChips(containerId, values, getActive, onClick, variant=''){
+  const c = document.getElementById(containerId);
+  c.innerHTML = values.map(v=>`
+    <button class="chip ${variant} ${getActive()===v?'active':''}" onclick="(${onClick.toString()})(${JSON.stringify(v)});buildChips();">${v}</button>
+  `).join('');
+}
+
+// ══ RENDER GRID ══
+function renderGrid(filtered){
+  const grid = document.getElementById('storiesGrid');
+  const empty = document.getElementById('emptyState');
+  const count = document.getElementById('storyCount');
+
+  // clear cards
+  [...grid.children].forEach(el=>{ if(el.id!=='emptyState') el.remove(); });
+
+  if(filtered.length === 0){
+    empty.style.display='block';
+    count.textContent='';
+    return;
+  }
+  empty.style.display='none';
+  count.textContent = `${filtered.length} historia${filtered.length!==1?'s':''}`;
+
+  const cardW = 240;
+  const innerW = cardW - 32;
+  const excerptFont = '12px DM Sans, sans-serif';
+
+  filtered.forEach((s, i) => {
+    const truncated = truncateText(s.text, excerptFont, innerW, 3);
+    const era = getEra(s.year);
+
+    const card = document.createElement('div');
+    card.className = 'story-card';
+    card.style.animationDelay = (i*40)+'ms';
+    card.onclick = ()=> openModal(s);
+
+    const imgHTML = s.image
+      ? `<img src="${s.image}" alt="${s.title}" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div class="card-img-placeholder">⏳</div>`;
+
+    card.innerHTML = `
+      <div class="card-img">
+        ${imgHTML}
+        <span class="card-genre ${genreClass(s.genre)}">${s.genre||'—'}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-year">${s.year||'?'} · ${s.place||'—'}</div>
+        <div class="card-title">${s.title}</div>
+        <div class="card-excerpt">${truncated}</div>
+        <div class="card-footer">
+          <div class="card-tags">
+            ${s.soup ? `<span class="tag">🍲 ${s.soup}</span>` : ''}
+            ${s.age  ? `<span class="tag">👤 ${s.age} años</span>` : ''}
+            <span class="tag">${era}</span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ══ FILTERS ══
+function applyFilters(){
+  searchQ = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = stories.filter(s=>{
+    if(activeGenre && s.genre !== activeGenre) return false;
+    if(activeSoup  && s.soup  !== activeSoup)  return false;
+    if(activeEra   && getEra(s.year) !== activeEra) return false;
+    if(searchQ && !s.title.toLowerCase().includes(searchQ) && !s.text.toLowerCase().includes(searchQ) && !s.place.toLowerCase().includes(searchQ)) return false;
+    return true;
+  });
+  renderGrid(filtered);
+}
+
+// ══ MODAL ══
+function openModal(s){
+  const m = document.getElementById('modal');
+  document.getElementById('modalImg').src = s.image||'';
+  document.getElementById('modalImg').classList.toggle('v', !!s.image);
+  document.getElementById('modalGenre').textContent = s.genre||'';
+  document.getElementById('modalGenre').className = `card-genre ${genreClass(s.genre)}`;
+  document.getElementById('modalGenre').style.position='static';
+  document.getElementById('modalTitle').textContent = s.title;
+  document.getElementById('modalText').textContent = s.text;
+  document.getElementById('modalMeta').innerHTML = [
+    s.year  && `<span class="meta-pill">📅 ${s.year}</span>`,
+    s.place && `<span class="meta-pill">📍 ${s.place}</span>`,
+    s.age   && `<span class="meta-pill">👤 ${s.age} años</span>`,
+    s.soup  && `<span class="meta-pill">🍲 Sopa de ${s.soup}</span>`,
+  ].filter(Boolean).join('');
+  m.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ══ ADD MODAL ══
+let addImage = null;
+function openAdd(){
+  document.getElementById('addModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAdd(){
+  document.getElementById('addModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function loadAddImage(inp){
+  const f = inp.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    addImage = e.target.result;
+    const prev = document.getElementById('addImgPreview');
+    prev.src = addImage; prev.classList.add('v');
+  };
+  r.readAsDataURL(f);
+}
+
+// ══ EXTRACT METADATA via Claude API ══
+async function extractMeta(){
+  const text = document.getElementById('addText').value.trim();
+  if(!text){ alert('Primero pega el texto de la historia.'); return; }
+
+  const btn = document.getElementById('extractBtn');
+  const spinner = document.getElementById('extractSpinner');
+  const label = document.getElementById('extractBtnLabel');
+  btn.disabled = true;
+  spinner.classList.add('v');
+  label.textContent = 'Analizando…';
+
+  try{
+    const res = await fetch('/api/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:500,
+        system:`Eres un analizador de micro-historias. El usuario pega el texto de una historia corta escrita en segunda persona, ambientada en algún momento histórico. Tu tarea es extraer metadatos clave.
+
+Responde ÚNICAMENTE con un JSON válido, sin markdown, sin texto extra, con exactamente estas claves:
+{
+  "year": "año mencionado en la historia (solo número, ej: 1311)",
+  "place": "ciudad o lugar principal mencionado",
+  "age": "edad del personaje principal si se menciona (solo número), o null",
+  "soup": "tipo de sopa mencionado en la historia (solo el ingrediente principal, ej: nabo, cebolla, ajo), o null si no hay sopa",
+  "genre": "género narrativo de la historia: Tragedia, Comedia, Amor, Aventura, Misterio, Guerra, u otro que corresponda",
+  "title": "un título breve y evocador para la historia (máx 6 palabras)"
+}`,
+        messages:[{role:'user', content: text}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '{}';
+    let meta;
+    try{ meta = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(e){ meta = {}; }
+
+    document.getElementById('mYear').value  = meta.year  || '';
+    document.getElementById('mPlace').value = meta.place || '';
+    document.getElementById('mAge').value   = meta.age   || '';
+    document.getElementById('mSoup').value  = meta.soup  || '';
+    document.getElementById('mGenre').value = meta.genre || '';
+    document.getElementById('mTitle').value = meta.title || '';
+    document.getElementById('extractedMeta').classList.add('v');
+
+  } catch(e){
+    alert('Error al conectar con la API. Revisa tu conexión.');
+    console.error(e);
+  } finally{
+    btn.disabled = false;
+    spinner.classList.remove('v');
+    label.textContent = '✦ Extraer metadatos con IA';
+  }
+}
+
+// ══ SAVE STORY ══
+function saveStory(){
+  const text = document.getElementById('addText').value.trim();
+  if(!text){ alert('El texto no puede estar vacío.'); return; }
+
+  const s = {
+    id: Date.now(),
+    title: document.getElementById('mTitle').value  || 'Sin título',
+    text,
+    year:  document.getElementById('mYear').value   || '',
+    place: document.getElementById('mPlace').value  || '',
+    age:   document.getElementById('mAge').value    || '',
+    soup:  document.getElementById('mSoup').value   || '',
+    genre: document.getElementById('mGenre').value  || '',
+    image: addImage,
+  };
+
+  stories.unshift(s);
+  localStorage.setItem('vg_stories', JSON.stringify(stories));
+  addImage = null;
+  document.getElementById('addText').value = '';
+  document.getElementById('addImgPreview').classList.remove('v');
+  document.getElementById('extractedMeta').classList.remove('v');
+  ['mYear','mPlace','mAge','mSoup','mGenre','mTitle'].forEach(id=>document.getElementById(id).value='');
+  closeAdd();
+  buildChips();
+  applyFilters();
+}
+
+// ══ KEYBOARD ══
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){closeModal();closeAdd();}
+});
+
+// ══ INIT ══
+buildChips();
+applyFilters();
+</script>
+</body>
+</html>
